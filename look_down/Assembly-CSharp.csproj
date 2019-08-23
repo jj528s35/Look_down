@@ -53,6 +53,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\HapticMaker\Turtorial\Scripts\HapticBox.cs" />
+     <Compile Include="Assets\HapticMaker\Turtorial\Scripts\HapticController.cs" />
+     <Compile Include="Assets\HapticMaker\Turtorial\Scripts\HapticEvent.cs" />
+     <Compile Include="Assets\HapticMaker\Turtorial\Scripts\Orbit.cs" />
+     <Compile Include="Assets\Motor_controller.cs" />
      <Compile Include="Assets\SteamVR\Extras\SteamVR_GazeTracker.cs" />
      <Compile Include="Assets\SteamVR\Extras\SteamVR_LaserPointer.cs" />
      <Compile Include="Assets\SteamVR\Extras\SteamVR_Teleporter.cs" />
@@ -514,6 +519,12 @@
  </Reference>
  <Reference Include="Unity.Analytics.Tracker">
  <HintPath>D:/cross-reality_Lab_project/Chenxy/Look_down_project/look_down/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Tracker.dll</HintPath>
+ </Reference>
+ <Reference Include="HapticMakerSetting">
+ <HintPath>D:/cross-reality_Lab_project/Chenxy/Look_down_project/look_down/Assets/HapticMaker/Plugins/HapticMakerSetting.dll</HintPath>
+ </Reference>
+ <Reference Include="HapticMaker">
+ <HintPath>D:/cross-reality_Lab_project/Chenxy/Look_down_project/look_down/Assets/HapticMaker/Plugins/HapticMaker.dll</HintPath>
  </Reference>
  <Reference Include="mscorlib">
  <HintPath>D:/Unity/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/mscorlib.dll</HintPath>

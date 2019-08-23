@@ -1,0 +1,145 @@
+fileFormatVersion: 2
+guid: db8480204ec194243a362c409f0f512f
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: Box007
+    100002: Box008
+    100004: ice_fish
+    100006: ice_PolarBear
+    100008: ice_snowman
+    100010: icebox
+    100012: iceflower1
+    100014: iceflower2
+    100016: icehouse
+    100018: //RootNode
+    100020: iceland
+    100022: icesnow
+    400000: Box007
+    400002: Box008
+    400004: ice_fish
+    400006: ice_PolarBear
+    400008: ice_snowman
+    400010: icebox
+    400012: iceflower1
+    400014: iceflower2
+    400016: icehouse
+    400018: //RootNode
+    400020: iceland
+    400022: icesnow
+    2100000: No Name
+    2100002: _11503_PolarBear_V2_FINAL_11503_PolarBear_V2_FINALdefault
+    2300000: Box007
+    2300002: Box008
+    2300004: ice_fish
+    2300006: ice_PolarBear
+    2300008: ice_snowman
+    2300010: icebox
+    2300012: iceflower1
+    2300014: iceflower2
+    2300016: icehouse
+    2300018: iceland
+    2300020: icesnow
+    3300000: Box007
+    3300002: Box008
+    3300004: ice_fish
+    3300006: ice_PolarBear
+    3300008: ice_snowman
+    3300010: icebox
+    3300012: iceflower1
+    3300014: iceflower2
+    3300016: icehouse
+    3300018: iceland
+    3300020: icesnow
+    4300000: iceflower1
+    4300002: icebox
+    4300004: icesnow
+    4300006: ice_fish
+    4300008: iceflower2
+    4300010: Box008
+    4300012: icehouse
+    4300014: ice_snowman
+    4300016: ice_PolarBear
+    4300018: iceland
+    4300020: Box007
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
