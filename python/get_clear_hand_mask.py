@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+# In[9]:
 
 
 import numpy as np
@@ -16,7 +16,101 @@ import tracking
 
 # # # RANSAM
 
-# In[ ]:
+# In[2]:
+
+
+# def Dis_pt2plane(pts, a, b, c, d):
+#     """
+#     Compute the distance from points to the plane
+#     """
+#     normal = math.sqrt(a*a+b*b+c*c)
+#     if normal == 0:
+#         normal = 1
+    
+#     v = np.array([a,b,c])
+#     dis = abs(np.dot(pts,v.T)+d)/normal
+#     return dis
+
+# def get_Plane(sampts):
+#     """
+#     Compute the equation of the plane
+#     """
+#     p1 = sampts[0]
+#     p2 = sampts[1]
+#     p3 = sampts[2]
+    
+#     a = ( (p2[1]-p1[1])*(p3[2]-p1[2])-(p2[2]-p1[2])*(p3[1]-p1[1]) )
+#     b = ( (p2[2]-p1[2])*(p3[0]-p1[0])-(p2[0]-p1[0])*(p3[2]-p1[2]) )
+#     c = ( (p2[0]-p1[0])*(p3[1]-p1[1])-(p2[1]-p1[1])*(p3[0]-p1[0]) )
+#     d = ( 0-(a*p1[0]+b*p1[1]+c*p1[2]) )
+    
+#     return a,b,c,d
+
+# def Random3points(points3D, ConfidenceIndex):
+#     """
+#     Random choose 3 Confidence points
+#     """
+#     sample_number = 3
+#     sample_point_index = random.sample(range(ConfidenceIndex.shape[0]), sample_number)
+#     sample_points = np.zeros((sample_number,3))
+#     for i in range(sample_number):
+#         Confidence_point_index = sample_point_index[i]
+#         index = ConfidenceIndex[Confidence_point_index]
+#         y = index // points3D.shape[1]
+#         x = index % points3D.shape[1]
+#         sample_points[i] = points3D[y][x]
+#     return sample_points
+
+# # def Random3points(points3D):
+# #     sample_number = 3
+# #     sample_point_index = random.sample(range(points3D.shape[0]*points3D.shape[1]), sample_number)
+# #     sample_points = np.zeros((sample_number,3))
+# #     for i in range(sample_number):
+# #         index = sample_point_index[i]
+# #         y = index // points3D.shape[1]
+# #         x = index % points3D.shape[1]
+# #         sample_points[i] = points3D[y][x]
+# #     return sample_points
+
+# def get_inliner_num(points3D,a,b,c,d,inliner_threshold):
+#     """
+#     Compute the liner points which distance to plane < threshold
+#     Also get distance from points to the plane (new Depth Image which re-project depth pixels in surface plane)
+#     """
+#     inliner_num = 0
+    
+#     dist = Dis_pt2plane(points3D,a,b,c,d)
+#     inliner_mask = dist < inliner_threshold
+#     inliner_num = np.sum(inliner_mask)
+#     return inliner_num, inliner_mask, dist
+
+# def RANSAM(points3D, ConfidenceIndex, ransac_iteration = 1000, inliner_threshold = 0.01):
+#     best_inlinernum = -1
+#     best_inlinernum = 0
+#     best_plane = np.zeros((1,4))
+#     best_depthImage = np.zeros((points3D.shape[0],points3D.shape[1]))
+#     best_plane_mask = np.zeros((points3D.shape[0],points3D.shape[1]))
+# #     best_sampts = np.zeros((3,3))
+    
+# #     print(points3D.shape,points3D[80:90,110])
+#     for i in range(ransac_iteration):
+#         sampts = Random3points(points3D, ConfidenceIndex)
+#         a,b,c,d = get_Plane(sampts)
+        
+#         inliner_num, inliner_mask, depthImage = get_inliner_num(points3D,a,b,c,d,inliner_threshold)
+#         if(inliner_num > best_inlinernum):
+#             best_inlinernum = inliner_num
+#             best_plane = np.array([a,b,c,d])
+#             best_plane_mask = inliner_mask
+#             best_depthImage = depthImage
+# #             best_sampts = sampts
+            
+#     print("Inliner Number\n", best_inlinernum)
+#     print("Inliner plane\n", best_plane)
+#     return best_plane, best_depthImage, best_plane_mask
+
+
+# In[3]:
 
 
 def Dis_pt2plane(pts, a, b, c, d):
@@ -56,21 +150,10 @@ def Random3points(points3D, ConfidenceIndex):
     for i in range(sample_number):
         Confidence_point_index = sample_point_index[i]
         index = ConfidenceIndex[Confidence_point_index]
-        y = index // points3D.shape[1]
-        x = index % points3D.shape[1]
+        y = index[0]
+        x = index[1]
         sample_points[i] = points3D[y][x]
     return sample_points
-
-# def Random3points(points3D):
-#     sample_number = 3
-#     sample_point_index = random.sample(range(points3D.shape[0]*points3D.shape[1]), sample_number)
-#     sample_points = np.zeros((sample_number,3))
-#     for i in range(sample_number):
-#         index = sample_point_index[i]
-#         y = index // points3D.shape[1]
-#         x = index % points3D.shape[1]
-#         sample_points[i] = points3D[y][x]
-#     return sample_points
 
 def get_inliner_num(points3D,a,b,c,d,inliner_threshold):
     """
@@ -80,11 +163,13 @@ def get_inliner_num(points3D,a,b,c,d,inliner_threshold):
     inliner_num = 0
     
     dist = Dis_pt2plane(points3D,a,b,c,d)
+    #set nan to 0 #20191021
+    dist = np.where(dist == np.nan, inliner_threshold, dist)
     inliner_mask = dist < inliner_threshold
     inliner_num = np.sum(inliner_mask)
     return inliner_num, inliner_mask, dist
 
-def RANSAM(points3D, ConfidenceIndex, ransac_iteration = 1000, inliner_threshold = 0.01):
+def RANSAM(points3D, ConfidenceIndex, ransac_iteration = 500, inliner_threshold = 10):
     best_inlinernum = -1
     best_inlinernum = 0
     best_plane = np.zeros((1,4))
@@ -104,6 +189,12 @@ def RANSAM(points3D, ConfidenceIndex, ransac_iteration = 1000, inliner_threshold
             best_plane_mask = inliner_mask
             best_depthImage = depthImage
 #             best_sampts = sampts
+
+        if (best_inlinernum > 450000):
+            print("Inliner Number\n", best_inlinernum)
+            print("Inliner plane\n", best_plane)
+            return best_plane, best_depthImage, best_plane_mask
+            
             
     print("Inliner Number\n", best_inlinernum)
     print("Inliner plane\n", best_plane)
@@ -112,7 +203,7 @@ def RANSAM(points3D, ConfidenceIndex, ransac_iteration = 1000, inliner_threshold
 
 # # # Depth Map
 
-# In[ ]:
+# In[4]:
 
 
 def get_depth_map(points3D,plane):
@@ -121,12 +212,13 @@ def get_depth_map(points3D,plane):
     Also get distance from points to the plane (new Depth Image which re-project depth pixels in surface plane)
     """
     dist = Dis_pt2plane(points3D,plane[0],plane[1],plane[2],plane[3])
+    dist = np.nan_to_num(dist)#20191021
     return dist
 
 
 # # # Edge map
 
-# In[ ]:
+# In[5]:
 
 
 def get_edge_map(grayImage,depthImage):
@@ -135,20 +227,20 @@ def get_edge_map(grayImage,depthImage):
     turn grayImg from int32 to int8
     blur the grayImg then do Canny Edge
     """
-    low_threshold = 2
-    high_threshold = 10
-    grayimg_int8 = cv2.convertScaleAbs(grayImage, alpha=(255.0/65535.0))
+    low_threshold = 100
+    high_threshold = 200
+#     grayimg_int8 = cv2.convertScaleAbs(grayImage, alpha=(255.0/65535.0))
     
     kernel_size = 3
-    blur_gray = cv2.GaussianBlur(grayimg_int8,(kernel_size, kernel_size), 0)
-    Cannyedges = cv2.Canny(grayimg_int8, low_threshold, high_threshold)#blur_gray
+    blur_gray = cv2.GaussianBlur(grayImage,(kernel_size, kernel_size), 0)
+    Cannyedges = cv2.Canny(blur_gray, low_threshold, high_threshold)#blur_gray
     
     """
     Threshold based Edge map
     if depth between the pixel and its nearby pixels > near_depth_threshold, then labeled it
     """
     s_time = time.time()
-    near_depth_threshold = 0.005 #0.05
+    near_depth_threshold = 50 #0.05
 #     print(np.max(depthImage))
     Threshold_based_edge = np.zeros((depthImage.shape[0],depthImage.shape[1]))
     
@@ -208,7 +300,7 @@ def get_edge_map(grayImage,depthImage):
 
 # # # Find High Region
 
-# In[ ]:
+# In[6]:
 
 
 def get_high_region(depthImage):
@@ -223,7 +315,7 @@ def get_high_region(depthImage):
     """
     h, w = depthImage.shape[:2]
     high_region_mask = np.ones((h+2,w+2), np.uint8)
-    high_region_mask[1:h+1,1:w+1] = depthImage < 0.005 # > 0.04 False == 0, Flood fill will fill pixels with 0
+    high_region_mask[1:h+1,1:w+1] = depthImage < 40 #0.005 # > 0.04 False == 0, Flood fill will fill pixels with 0
     resultImg = np.zeros((h,w), np.uint8)
     
     maxArea = 0
@@ -324,7 +416,7 @@ def max_area_pos(high_region_mask, curr_pos, maxArea, max_high_pos, Debug = Fals
 
 # # # Hand Mask
 
-# In[ ]:
+# In[7]:
 
 
 def get_Hand_mask(Edge_map, high_list, High_region_Image, depth_only_mask = False):
@@ -395,8 +487,12 @@ def Flood_fill_with_edge_reasonable(hand_mask_Img, high_list, points3D):
     return reasonable
 
 
+# In[8]:
+
+
+
 # In[ ]:
 
 
-find_fingertip
+
 
