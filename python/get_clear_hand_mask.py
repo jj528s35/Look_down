@@ -212,7 +212,7 @@ def get_depth_map(points3D,plane):
     Also get distance from points to the plane (new Depth Image which re-project depth pixels in surface plane)
     """
     dist = Dis_pt2plane(points3D,plane[0],plane[1],plane[2],plane[3])
-    dist = np.nan_to_num(dist)#20191021
+#     dist = np.nan_to_num(dist)#20191021
     return dist
 
 
@@ -239,9 +239,10 @@ def get_edge_map(grayImage,depthImage):
     Threshold based Edge map
     if depth between the pixel and its nearby pixels > near_depth_threshold, then labeled it
     """
+    #by canndy edge??
     s_time = time.time()
     near_depth_threshold = 10 #0.05
-#     print(np.max(depthImage))
+    
     Threshold_based_edge = np.zeros((depthImage.shape[0],depthImage.shape[1]))
     depthImage = depthImage.astype(np.uint8)#2019
     
@@ -249,49 +250,119 @@ def get_edge_map(grayImage,depthImage):
     w = depthImage.shape[1]
     step = 1
     depth_img_transform = np.zeros((h+step,w+step))
-    depth_img_transform[:h,:w] = depthImage
+#     #check left up depth threshold
+#     depth_img_transform[:h,:w] = depthImage
+#     depth_img_transform[step:h+step,step:w+step] = depthImage
+#     check_depth_threshold = np.abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
+#     Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
+#     #check up depth threshold
+#     depth_img_transform[:h,:w] = depthImage
+#     depth_img_transform[step:h+step,:w] = depthImage
+#     check_depth_threshold = np.abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
+#     Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
+#     #check Right up depth threshold
+#     depth_img_transform[:h,:w] = depthImage
+#     depth_img_transform[step:h+step,:w-step] = depthImage[:,step:w]
+#     check_depth_threshold = np.abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
+#     Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
+#     #check Left depth threshold
+#     depth_img_transform[:h,:w] = depthImage
+#     depth_img_transform[:h,step:w+step] = depthImage
+#     check_depth_threshold = np.abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
+#     Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
+#     #check Right depth threshold
+#     depth_img_transform[:h,:w] = depthImage
+#     depth_img_transform[:h,:w-step] = depthImage[:,step:w]
+#     check_depth_threshold = np.abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
+#     Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
+#     #check Left down depth threshold
+#     depth_img_transform[:h,:w] = depthImage
+#     depth_img_transform[:h-step,step:w+step] = depthImage[step:h,:]
+#     check_depth_threshold = np.abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
+#     Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
+#     #check down depth threshold
+#     depth_img_transform[:h,:w] = depthImage
+#     depth_img_transform[:h-step,:w] = depthImage[step:h,:]
+#     check_depth_threshold = np.abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
+#     Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
+#     #check Right down depth threshold
+#     depth_img_transform[:h,:w] = depthImage
+#     depth_img_transform[:h-step,:w-step] = depthImage[step:h,step:w]
+#     check_depth_threshold = np.abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
+#     Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
+#     print('**get threshold edge: %.4f s'%(time.time()-s_time))
+    
+    #Try to speedup 
+    # abs ==> x > near_depth_threshold   x1 < -near_depth_threshold
+    # Time cost : np.logical_or every time >> np.logical_or.reduce(check_1_8) > x1 + x2 + x3 > 0
+    s_time = time.time()
     #check left up depth threshold
+    depth_img_transform[:h,:w] = depthImage
     depth_img_transform[step:h+step,step:w+step] = depthImage
-    check_depth_threshold = abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
-    Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
+    result = depthImage - depth_img_transform[:h,:w]
+    x1 = result > near_depth_threshold
+    x11 = result < -near_depth_threshold
+    
     #check up depth threshold
     depth_img_transform[:h,:w] = depthImage
     depth_img_transform[step:h+step,:w] = depthImage
-    check_depth_threshold = abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
-    Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
+    result = depthImage - depth_img_transform[:h,:w]
+    x2 = result > near_depth_threshold
+    x21 = result < -near_depth_threshold
+    
     #check Right up depth threshold
     depth_img_transform[:h,:w] = depthImage
     depth_img_transform[step:h+step,:w-step] = depthImage[:,step:w]
-    check_depth_threshold = abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
-    Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
+    result = depthImage - depth_img_transform[:h,:w]
+    x3 = result > near_depth_threshold
+    x31 = result < -near_depth_threshold
+    
     #check Left depth threshold
     depth_img_transform[:h,:w] = depthImage
     depth_img_transform[:h,step:w+step] = depthImage
-    check_depth_threshold = abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
-    Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
+    result = depthImage - depth_img_transform[:h,:w]
+    x4 = result > near_depth_threshold
+    x41 = result < -near_depth_threshold
+    
     #check Right depth threshold
     depth_img_transform[:h,:w] = depthImage
     depth_img_transform[:h,:w-step] = depthImage[:,step:w]
-    check_depth_threshold = abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
-    Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
+    result = depthImage - depth_img_transform[:h,:w]
+    x5 = result > near_depth_threshold
+    x51 = result < -near_depth_threshold
+    
     #check Left down depth threshold
     depth_img_transform[:h,:w] = depthImage
     depth_img_transform[:h-step,step:w+step] = depthImage[step:h,:]
-    check_depth_threshold = abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
-    Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
+    result = depthImage - depth_img_transform[:h,:w]
+    x6 = result > near_depth_threshold
+    x61 = result < -near_depth_threshold
+    
     #check down depth threshold
     depth_img_transform[:h,:w] = depthImage
     depth_img_transform[:h-step,:w] = depthImage[step:h,:]
-    check_depth_threshold = abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
-    Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
+    result = depthImage - depth_img_transform[:h,:w]
+    x7 = result > near_depth_threshold
+    x71 = result < -near_depth_threshold
+    
     #check Right down depth threshold
     depth_img_transform[:h,:w] = depthImage
     depth_img_transform[:h-step,:w-step] = depthImage[step:h,step:w]
-    check_depth_threshold = abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
-    Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
+    result = depthImage - depth_img_transform[:h,:w]
+    x8 = result > near_depth_threshold
+    x81 = result < -near_depth_threshold
+
+    #slower than add
+#     check_1_8 = np.array((x1, x2, x3, x4, x5, x6, x7, x8, x11, x21, x31, x41, x51, x61, x71, x81))
+#     Threshold_based_edge = np.logical_or.reduce(check_1_8)
+    
+    Threshold_based_edge = (x1+ x2+ x3+ x4+ x5+ x6+ x7+ x8+ x11+ x21+ x31+ x41+ x51+ x61+ x71+ x81)
+
+    #20191029 speedup
+    
+    print('*get threshold edge: %.4f s'%(time.time()-s_time))
     
     
-#     print('*get threshold edge: %.4f s'%(time.time()-s_time))
     """
     Merge Canny Edge map and Threshold based Edge map
     """
