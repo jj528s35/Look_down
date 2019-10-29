@@ -227,11 +227,11 @@ def get_edge_map(grayImage,depthImage):
     turn grayImg from int32 to int8
     blur the grayImg then do Canny Edge
     """
-    low_threshold = 100
-    high_threshold = 200
+    low_threshold = 10#30
+    high_threshold = 20#60
 #     grayimg_int8 = cv2.convertScaleAbs(grayImage, alpha=(255.0/65535.0))
     
-    kernel_size = 3
+    kernel_size = 7#11
     blur_gray = cv2.GaussianBlur(grayImage,(kernel_size, kernel_size), 0)
     Cannyedges = cv2.Canny(blur_gray, low_threshold, high_threshold)#blur_gray
     
@@ -240,51 +240,53 @@ def get_edge_map(grayImage,depthImage):
     if depth between the pixel and its nearby pixels > near_depth_threshold, then labeled it
     """
     s_time = time.time()
-    near_depth_threshold = 50 #0.05
+    near_depth_threshold = 10 #0.05
 #     print(np.max(depthImage))
     Threshold_based_edge = np.zeros((depthImage.shape[0],depthImage.shape[1]))
+    depthImage = depthImage.astype(np.uint8)#2019
     
     h = depthImage.shape[0]
     w = depthImage.shape[1]
-    depth_img_transform = np.zeros((h+1,w+1))
+    step = 1
+    depth_img_transform = np.zeros((h+step,w+step))
     depth_img_transform[:h,:w] = depthImage
     #check left up depth threshold
-    depth_img_transform[1:h+1,1:w+1] = depthImage
+    depth_img_transform[step:h+step,step:w+step] = depthImage
     check_depth_threshold = abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
     Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
     #check up depth threshold
     depth_img_transform[:h,:w] = depthImage
-    depth_img_transform[1:h+1,:w] = depthImage
-    check_depth_threshold = abs(depthImage - depth_img_transform[:depthImage.shape[0],:depthImage.shape[1]]) > near_depth_threshold
+    depth_img_transform[step:h+step,:w] = depthImage
+    check_depth_threshold = abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
     Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
     #check Right up depth threshold
     depth_img_transform[:h,:w] = depthImage
-    depth_img_transform[1:h+1,:w-1] = depthImage[:,1:w]
+    depth_img_transform[step:h+step,:w-step] = depthImage[:,step:w]
     check_depth_threshold = abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
     Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
     #check Left depth threshold
     depth_img_transform[:h,:w] = depthImage
-    depth_img_transform[:h,1:w+1] = depthImage
+    depth_img_transform[:h,step:w+step] = depthImage
     check_depth_threshold = abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
     Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
     #check Right depth threshold
     depth_img_transform[:h,:w] = depthImage
-    depth_img_transform[:h,:w-1] = depthImage[:,1:w]
+    depth_img_transform[:h,:w-step] = depthImage[:,step:w]
     check_depth_threshold = abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
     Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
     #check Left down depth threshold
     depth_img_transform[:h,:w] = depthImage
-    depth_img_transform[:h-1,1:w+1] = depthImage[1:h,:]
+    depth_img_transform[:h-step,step:w+step] = depthImage[step:h,:]
     check_depth_threshold = abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
     Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
     #check down depth threshold
     depth_img_transform[:h,:w] = depthImage
-    depth_img_transform[:h-1,:w] = depthImage[1:h,:]
+    depth_img_transform[:h-step,:w] = depthImage[step:h,:]
     check_depth_threshold = abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
     Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
     #check Right down depth threshold
     depth_img_transform[:h,:w] = depthImage
-    depth_img_transform[:h-1,:w-1] = depthImage[1:h,1:w]
+    depth_img_transform[:h-step,:w-step] = depthImage[step:h,step:w]
     check_depth_threshold = abs(depthImage - depth_img_transform[:h,:w]) > near_depth_threshold
     Threshold_based_edge = np.logical_or(Threshold_based_edge, check_depth_threshold)
     
@@ -303,7 +305,7 @@ def get_edge_map(grayImage,depthImage):
 # In[6]:
 
 
-def get_high_region(depthImage):
+def get_high_region(depthImage, plane_mask):
     """
     Define plane edge
     High region : > 0.04 
@@ -315,23 +317,32 @@ def get_high_region(depthImage):
     """
     h, w = depthImage.shape[:2]
     high_region_mask = np.ones((h+2,w+2), np.uint8)
-    high_region_mask[1:h+1,1:w+1] = depthImage < 40 #0.005 # > 0.04 False == 0, Flood fill will fill pixels with 0
+    high_region_mask[1:h+1,1:w+1] = depthImage < 30 #0.005 # > 0.04 False == 0, Flood fill will fill pixels with 0
     resultImg = np.zeros((h,w), np.uint8)
     
     maxArea = 0
     max_high_pos = (-1,-1)
     
     #define plane edge
-    plane_edge = 15#25
+    plane_edge = 100#25
     
-    x1 = plane_edge
-    x2 = w - plane_edge
-    y1 = plane_edge
-    y2 = h - plane_edge
+    edge_y, edge_x = np.nonzero(plane_mask)
+    
+#     x1 = plane_edge
+#     x2 = w - plane_edge
+#     y1 = plane_edge
+#     y2 = h - plane_edge
+
+    x1 = edge_x.min()
+    x2 = edge_x.max() #w - plane_edge
+    y1 = edge_y[0] #50 
+    y2 = edge_y[-1] #h - plane_edge
+    
+#     print(x1,edge_x.max(),edge_y[0],edge_y[-1])
     
     high_list = []
     
-    for y in range(plane_edge, y2):
+    for y in range(y1, y2):
         if high_region_mask[y+1,x1+1] == 0 and resultImg[y,x1] != True:
             cv2.floodFill(resultImg, high_region_mask.copy(), (x1, y),True, cv2.FLOODFILL_MASK_ONLY)
 #             high_list.append((x1,y))
@@ -349,7 +360,7 @@ def get_high_region(depthImage):
 #                 max_high_pos = ind#high_list.append(ind)
             
             
-    for x in range(plane_edge, x2):
+    for x in range(x1, x2):
         if high_region_mask[y1+1,x+1] == 0 and resultImg[y1,x] != True:
             cv2.floodFill(resultImg, high_region_mask.copy(), (x, y1),True, cv2.FLOODFILL_MASK_ONLY)
 #             high_list.append((x, y1))

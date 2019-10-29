@@ -68,7 +68,7 @@ def find_fingertips_by_dot(Contours, hull, contours_image, center, debug=False):
     If its near points labeled, then choose the points with larger curvature (dot value is smaller)
     """
     fingertips = []
-    skip = 4 # 4 ==> 點少但無誤判
+    skip = 2 # 4 ==> 點少但無誤判
     Convex = (0,0)
     post_dot = 20
     threshold = 8

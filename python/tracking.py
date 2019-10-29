@@ -93,8 +93,8 @@ def hand_tracking(new_center, new_tips, threed_points, draw_image=None):
     if(draw_image is not None):
         tracking_image = draw_image.copy()
         hand_color = (0, 255, 0)
-        fingertip_color = (0, 255, 0)
-        text_size = 0.25
+        fingertip_color = (0, 255, 255)
+        text_size = 0.5
         for i, h in enumerate(hands_center):
             if(h[0] != -1):
                 hand_text = 'h_' + str(i)
