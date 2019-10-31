@@ -228,7 +228,7 @@ def get_edge_map(grayImage,depthImage):
     blur the grayImg then do Canny Edge
     """
     low_threshold = 10#30
-    high_threshold = 20#60
+    high_threshold = 30#60
 #     grayimg_int8 = cv2.convertScaleAbs(grayImage, alpha=(255.0/65535.0))
     
     kernel_size = 7#11

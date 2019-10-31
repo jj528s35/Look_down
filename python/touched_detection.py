@@ -22,18 +22,18 @@ def touching_detection(tips, hand_mask, depth_image, draw_image=None):
     the surface if the smoothed fingertip height descends below 10 mm, and declared to have left the surface if its height laster ascends past 15 mm.
     '''
     global fingertips_touched_flag
-    kernal_size = 21
-    touch_height = 15#0.02
-    untouch_height = 25#0.025
+    kernal_size = 7
+    touch_height = 10#0.02
+    untouch_height = 15#0.025
     
     # debug image
     if(draw_image is not None):
         touched_text = "touched"
-        text_size = 0.25
+        text_size = 0.5
         touched_color = (0, 255, 0)
         touched_image = draw_image.copy()
     
-    max_width, max_height =  hand_mask.shape
+    max_height, max_width =  hand_mask.shape
 #     print('max width: %d, height: %d'%(max_width, max_height))
 #     print('test access: %d'%(hand_mask[170, 223]))
     for index, tip in enumerate(tips):
@@ -52,17 +52,19 @@ def touching_detection(tips, hand_mask, depth_image, draw_image=None):
         surface_height = 999
 
 #         print ('tip[%d] = (%d, %d)' % (i, tip[0], tip[1]))
-        for h in range(-math.floor(kernal_size/2), math.floor(kernal_size/2), 1):
-            for w in range(-math.floor(kernal_size/2), math.floor(kernal_size/2), 1):
+        kernal_range = math.floor(kernal_size/2)
+        for h in range(-kernal_range, kernal_range+ 1, 1):
+            for w in range(-kernal_range, kernal_range + 1, 1):
                 (u, v) = (int(tip[1]+w), int(tip[0]+h))
                 
                 # check the bounder
-                if(u < 0 or u >= max_width):
+                if(u < 0 or u >= max_height):
                     continue
-                if(v < 0 or v >= max_height):
+                if(v < 0 or v >= max_width):
                     continue
 
-                if (hand_mask[u, v] == True):
+                # Debug20191031 SkinImg is [0,255]
+                if (hand_mask[u, v] == True or hand_mask[u, v] == 255):
                     if(depth_image[u, v] > tip_height):
                         Zs = (u, v)
                         tip_height = depth_image[u,v]
@@ -73,13 +75,16 @@ def touching_detection(tips, hand_mask, depth_image, draw_image=None):
                         
 #                 if(draw_image is not None):
 #                     touched_image[u, v]=touched_color
-                    
-            if((tip_height - surface_height) < touch_height):
-                fingertips_touched_flag[index] = True
-#                 print(tip_height,surface_height,(tip_height - surface_height))
+
+        #20191031 Debug : tip/surface not change, put these code outside the for loop 
+        if(tip_height!= -999 and surface_height!= 999 and (tip_height - surface_height) < touch_height):
+            fingertips_touched_flag[index] = True
+            print(tip_height,surface_height,(tip_height - surface_height))
+#             print(depth_image[int(tip[1])-kernal_range:int(tip[1])+kernal_range, int(tip[0])-kernal_range:int(tip[0])+kernal_range] )
 #                 print('finger %d touched'%(index))
-            if((tip_height - surface_height) > untouch_height):
-                fingertips_touched_flag[index] = False
+        if(tip_height == -999 or surface_height == 999 or (tip_height - surface_height) >= untouch_height):
+            fingertips_touched_flag[index] = False
+#             print(tip_height,surface_height,(tip_height - surface_height))
 #     print(fingertips_touched_flag)
 
     # debug image

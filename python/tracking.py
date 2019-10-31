@@ -15,7 +15,7 @@ def get_euclidean_distance(x, y, threed_points):
     b = threed_points[int(y[1]), int(y[0])]
     return np.power((np.power(a[0] - b[0], 2) + np.power(a[1] - b[1], 2) + np.power(a[2] - b[2], 2)), 0.5)
    
-def get_tracking_index(tracking_array, new_tracking_positions, threed_points, euclidean_distance = 0.1):
+def get_tracking_index(tracking_array, new_tracking_positions, threed_points, euclidean_distance = 100):#0.1
     '''
         return:
         found_index[x, 0] = index
@@ -100,6 +100,7 @@ def hand_tracking(new_center, new_tips, threed_points, draw_image=None):
                 hand_text = 'h_' + str(i)
                 pos = (int(hands_center[i][0]), int(hands_center[i][1]))
                 cv2.putText(img=tracking_image, text=hand_text, org=pos, fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=text_size, color=hand_color)
+                cv2.circle(tracking_image, pos, 5 , hand_color , 3)
         for j, f in enumerate(fingertips):
             if(f[0] != -1):
                 finger_text = 'f_' + str(j)
