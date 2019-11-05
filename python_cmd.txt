@@ -1,2 +1,2 @@
 python zed_Recording_SVO.py filename.svo
-#無法streaming後record
+#無法streaming後record 
