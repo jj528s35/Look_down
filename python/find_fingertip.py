@@ -26,12 +26,17 @@ def find_fingertip(hand_mask, debug = False):
     fingertips = []
     kernel_size = 7
     
+#     #Smooth the mask and find the contours
+#     smooth_mask = cv2.GaussianBlur(hand_mask,(kernel_size, kernel_size), 0)
+#     (_, cnts, _) = cv2.findContours(smooth_mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
     #Smooth the mask and find the contours
     smooth_mask = cv2.GaussianBlur(hand_mask,(kernel_size, kernel_size), 0)
-    (_, cnts, _) = cv2.findContours(smooth_mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    ret, binary = cv2.threshold(smooth_mask,127,255,cv2.THRESH_BINARY)
+    (_, cnts, _) = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     #convert the result image into RGB image
-    contours_image = cv2.convertScaleAbs(smooth_mask, alpha=(255))
+    contours_image = cv2.convertScaleAbs(binary, alpha=(255))
     contours_image = cv2.cvtColor(contours_image, cv2.COLOR_GRAY2BGR)
     
     # Find the contour with max area
@@ -68,12 +73,12 @@ def find_fingertips_by_dot(Contours, hull, contours_image, center, debug=False):
     If its near points labeled, then choose the points with larger curvature (dot value is smaller)
     """
     fingertips = []
-    skip = 2 # 4 ==> 點少但無誤判
+    skip = 2 #2 # 4 ==> 點少但無誤判
     Convex = (0,0)
     post_dot = 20
     threshold = 8
     Convex_threshold = 1
-    Dot_threshold = 20
+    Dot_threshold = 20 #20
     first = True
     for i in range(skip, len(Contours)-skip):
         p = Contours[i-skip]
@@ -98,6 +103,9 @@ def find_fingertips_by_dot(Contours, hull, contours_image, center, debug=False):
                     fingertips[-1] = points
                 Convex = points
                 post_dot = dot
+                ###show points around the tips
+                cv2.circle(contours_image, (p[0,0],p[0,1]), 3 , (0,0,255) , 1)
+                cv2.circle(contours_image, (r[0,0],r[0,1]), 3 , (0,0,255) , 1)
                     
     if(debug==True):
         for i in range(len(fingertips)):

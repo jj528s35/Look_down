@@ -55,6 +55,7 @@
   <ItemGroup>
      <Compile Include="Assets\c#\Motor_controller.cs" />
      <Compile Include="Assets\c#\MRTouchServer2.cs" />
+     <Compile Include="Assets\c#\show_fingertips.cs" />
      <Compile Include="Assets\HapticMaker\Turtorial\Scripts\HapticBox.cs" />
      <Compile Include="Assets\HapticMaker\Turtorial\Scripts\HapticController.cs" />
      <Compile Include="Assets\HapticMaker\Turtorial\Scripts\HapticEvent.cs" />
